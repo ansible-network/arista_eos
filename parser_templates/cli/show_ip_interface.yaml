@@ -1,0 +1,89 @@
+---
+- name: match interface sections
+  pattern_match:
+    regex: ".+ is up,"
+    match_all: yes
+    match_greedy: yes
+  register: context
+
+- name: match interface values
+  pattern_group:
+    - name: match name
+      pattern_match:
+        regex: "^(\\S+) is up, line protocol is (\\w+)"
+        content: "{{ item }}"
+      register: name
+
+    - name: match enabled
+      pattern_match:
+        regex: "(No Internet protocol address assigned)"
+        content: "{{ item }}"
+      register: enabled
+
+    - name: match dhcp enabled
+      pattern_match:
+        regex: "(Address determined by DHCP)"
+        content: "{{ item }}"
+      register: dhcp
+
+    - name: match proxy-arp
+      pattern_match:
+        regex: "(Proxy-ARP is enabled)"
+        content: "{{ item }}"
+      register: proxy_arp
+
+    - name: match local proxy-arp
+      pattern_match:
+        regex: "(Local Proxy-ARP is enabled)"
+        content: "{{ item }}"
+      register: local_proxy_arp
+
+    - name: match ip4v address
+      pattern_match:
+        regex: "Internet address is (.+)/(\\d+)"
+        content: "{{ item }}"
+      register: ipv4addr
+
+    - name: match ip mtu
+      pattern_match:
+        regex: "IP MTU (\\d+)"
+        content: "{{ item }}"
+      register: mtu
+
+    - name: match vrf
+      pattern_match:
+        regex: "VPN Routing/Forwarding \"(\\w+)\""
+        content: "{{ item }}"
+      register: vrf
+
+  loop: "{{ context }}"
+  register: values
+
+- name: populate facts template
+  json_template:
+    template:
+      - key: "{{ item.name.matches.0 }}"
+        object:
+          - key: enabled
+            value: "{{ item.enabled.matches.0 is undefined }}"
+          - key: ipv4
+            object:
+              - key: address
+                value: "{{ item.ipv4addr.matches.0 }}"
+              - key: masklen
+                value: "{{ item.ipv4addr.matches.1 }}"
+              - key: dhcp
+                value: "{{ item.dhcp.matches.0 is defined }}"
+              - key: proxy_arp
+                value: "{{ item.proxy_arp.matches.0 is defined }}"
+              - key: local_proxy_arp
+                value: "{{ item.proxy_arp.matches.0 is defined }}"
+          - key: mtu
+            value: "{{ item.mtu.matches.0 }}"
+          - key: vrf
+            value: "{{ item.vrf.matches.0 }}"
+  loop: "{{ values }}"
+  register: interfaces
+  export: yes
+  export_as: dict
+  extend: arista_eos

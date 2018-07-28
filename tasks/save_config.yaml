@@ -1,0 +1,4 @@
+---
+- name: copy running-config to startup-config
+  cli:
+    command: "copy running-config startup-config"

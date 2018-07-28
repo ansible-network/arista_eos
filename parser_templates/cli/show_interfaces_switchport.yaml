@@ -1,0 +1,79 @@
+---
+- name: perform context matches
+  pattern_match:
+    regex: "^Name: "
+    match_all: yes
+    match_greedy: yes
+  register: context
+
+- name: perform context matches
+  pattern_group:
+    - name: match name
+      pattern_match:
+        regex: "Name: (.+)"
+        content: "{{ item }}"
+      register: name
+
+    - name: match enabled
+      pattern_match:
+        regex: "Switchport: (Enabled)"
+        content: "{{ item }}"
+      register: enabled
+
+    - name: match administrative mode
+      pattern_match:
+        regex: "Administrative Mode: (.+)"
+        content: "{{ item }}"
+      register: admin_mode
+
+    - name: match operational mode
+      pattern_match:
+        regex: "Operational Mode: (.+)"
+        content: "{{ item }}"
+      register: oper_mode
+
+    - name: match mac learning
+      pattern_match:
+        regex: "MAC Address Learning: (enabled)"
+        content: "{{ item }}"
+      register: address_learning
+
+    - name: match access vlan
+      pattern_match:
+        regex: "Access Mode VLAN: (\\d+)"
+        content: "{{ item }}"
+      register: access_vlan
+
+    - name: match trunk native vlan
+      pattern_match:
+        regex: "Trunking Native Mode VLAN: (\\d+)"
+        content: "{{ item }}"
+      register: trunk_native_vlan
+
+  loop: "{{ context }}"
+  register: interfaces
+
+- name: populate facts template
+  register: interfaces
+  export: yes
+  export_as: dict
+  extend: arista_eos
+  loop: "{{ interfaces }}"
+  json_template:
+    template:
+      - key: "{{ item.name.matches.0 | expand_interface_name }}"
+        object:
+          - key: switchport
+            object:
+              - key: enabled
+                value: "{{ item.enabled is defined }}"
+              - key: admin_mode
+                value: "{{ item.admin_mode.matches.0 }}"
+              - key: oper_mode
+                value: "{{ item.oper_mode.matches.0 }}"
+              - key: mac_address_learning
+                value: "{{ item.address_learning is defined }}"
+              - key: access_vlan
+                value: "{{ item.access_vlan.matches.0 }}"
+              - key: trunk_native_vlan
+                value: "{{ item.trunk_native_vlan.matches.0 }}"

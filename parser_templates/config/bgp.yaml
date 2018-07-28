@@ -1,0 +1,56 @@
+---
+- name: match bgp section
+  pattern_match:
+    regex: "^router bgp .+"
+    match_greedy: yes
+  register: context
+
+- name: match bgp values
+  pattern_group:
+    - name: match bgp as
+      pattern_match:
+        regex: "^router bgp (\\d+)"
+        content: "{{ item }}"
+      register: bgp_as
+
+    - name: match router-id
+      pattern_match:
+        regex: "router-id (\\S+)"
+        content: "{{ item }}"
+      register: router_id
+
+    - name: match maximum-paths
+      pattern_match:
+        regex: "maximum-paths (\\d+)"
+        content: "{{ item }}"
+      register: maxpaths
+
+    - nam: match redistribute connected
+      pattern_match:
+        regex: "redistribute connected(?: (route-map (\\S+)))"
+        content: "{{ item }}"
+      register: connected
+
+  loop: "{{ context }}"
+  register: values
+
+- name: template entries
+  json_template:
+    template:
+      - key: bgp_as
+        value: "{{ values.bgp_as.matches.0 }}"
+      - key: router_id
+        value: "{{ values.router_id.matches.0 }}"
+      - key: maximum_paths
+        value: "{{ values.maxpaths.maches.0 }}"
+      - key: redistribute
+        object:
+          - key: connected
+            object:
+              - key: enabled
+                value: "{{ values.connected.matches is not None }}"
+              - key: route_map
+                value: "{{ values.connected.matches.0 }}"
+  register: bgp
+  extend: arista_eos.config
+  export: yes

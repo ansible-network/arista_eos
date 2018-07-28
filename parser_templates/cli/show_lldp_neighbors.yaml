@@ -1,0 +1,22 @@
+---
+- name: show lldp neighbors
+  pattern_match:
+    regex: "^([E|M]\\w+\\d+)\\s+(\\S+)\\s+(\\S+)"
+    match_all: yes
+  register: values
+
+- name: template values
+  json_template:
+    template:
+      - key: neighbors
+        elements:
+          - key: port
+            value: "{{ item.matches.0 | expand_interface_name }}"
+          - key: neighbor
+            value: "{{ item.matches.1.split('.')[0] }}"
+          - key: neighbor_port
+            value: "{{ item.matches.2 }}"
+        repeat_for: "{{ values }}"
+  register: lldp
+  export: yes
+  extend: arista_eos

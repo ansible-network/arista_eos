@@ -1,0 +1,29 @@
+---
+- name: populate facts template
+  json_template:
+    template:
+      - key: "{{ item.key }}"
+        object:
+        - key: name
+          value: "{{ item.key }}"
+        - key: status
+          value: "{{ item.value.interfaceStatus }}"
+        - key: mode
+          value: "{{ item.value.forwardingModel }}"
+        - key: description
+          value: "{{ item.value.description }}"
+        - key: address_family
+          object:
+            - key: ipv4
+              object:
+                - key: address
+                  value: "{{ address.primaryIp.address }}"
+                - key: masklen
+                  value: "{{ address.primaryIp.maskLen }}"
+          repeat_for: "{{ item.value.interfaceAddress }}"
+          repeat_var: address
+  loop: "{{ content.interfaces }}"
+  register: interfaces
+  export: yes
+  export_as: dict
+  extend: arista_eos

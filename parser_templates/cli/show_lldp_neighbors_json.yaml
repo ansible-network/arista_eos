@@ -1,0 +1,17 @@
+---
+- name: show lldp neighbors | json
+  register: lldp
+  export: yes
+  json_template:
+    template:
+      - key: neighbors
+        elements:
+          - key: port
+            value: "{{ item.port }}"
+          - key: neighbor
+            value: "{{ item.neighborDevice }}"
+          - key: neighbor_port
+            value: "{{ item.neighborPort }}"
+          - key: ttl
+            value: "{{ item.ttl }}"
+        loop: "{{ contents.lldpNeighbors }}"
