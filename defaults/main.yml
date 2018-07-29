@@ -15,3 +15,6 @@ eos_config_session_name: "ansible-{{ omit | to_uuid }}"
 eos_config_checkpoint_filename: "_tmp_ansible"
 
 eos_config_require_session: "{{ require_session | default(False) }}"
+
+eos_get_facts_command_map: "{{ role_path }}/vars/get_facts_command_map.yaml"
+eos_get_facts_subset: "{{ subset | default(['default']) }}"
