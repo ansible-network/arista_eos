@@ -1,0 +1,64 @@
+---
+# this block handles loading the configuration using a configuration session
+# for devices that support it.  this is the preferred block for loading the
+# configuration and should cover most of the use cases.
+- name: load configuration using configure session
+  block:
+    - name: remove old configuration session (if present)
+      cli:
+        command: "no configure session {{ eos_config_session_name }}"
+      when: eos_config_session_name in eos_supports_sessions.stdout
+
+    - name: display configuration session name
+      debug:
+        msg: "eos configure session name is {{ eos_config_session_name }}"
+
+    - name: start new configuration session
+      cli:
+        command: "configure session {{ eos_config_session_name }}"
+
+    - name: rollback configuration to clean config
+      cli:
+        command: "rollback clean-config"
+      when: eos_config_replace
+
+    - name: apply configuration statements
+      cli:
+        command: "{{ line.strip() }}"
+      loop: "{{ eos_config_text | to_lines }}"
+      loop_control:
+        loop_var: line
+      when: line != 'end'
+
+    - name: get configuration diff
+      cli:
+        command: "show session-config diffs"
+      register: eos_config_diff
+      changed_when: eos_config_diff.stdout
+
+    - name: display config diff
+      debug:
+        msg: "{{ eos_config_diff.stdout.splitlines() }}"
+
+    - name: commit the configuration and exit
+      cli:
+        command: commit
+      when: not ansible_check_mode
+
+    - name: abort the configuration due to check mode
+      cli:
+        command: abort
+      when: ansible_check_mode
+
+    - name: remove configuration session
+      cli:
+        command: "no configure session {{ eos_config_session_name }}"
+      when: not ansible_check_mode
+  rescue:
+    - name: abort configuration
+      cli:
+        command: abort
+
+    - name: mark the host as failed
+      fail:
+        msg: "error loading configuration onto target device"

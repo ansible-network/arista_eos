@@ -1,40 +1,12 @@
 ---
-- name: validate argument spec
-  validate:
-    spec: "load_config_spec.yaml"
+- name: validate role spec
+  validate_role_spec:
+    spec: load_config_spec.yaml
 
-- name: load config file from src
+- name: load config file contents
   set_fact:
-    eos_config_text: "{{ lookup('config_template', eos_config_file) }}"
-  when: eos_config_file is defined and not eos_config_text | default(None)
+    eos_config_text: "{{ lookup('config_template', eos_config_file) | join('\n') }}"
+  when: eos_config_file != ''
 
-- name: configure target device
-  block:
-    - name: check if device supports config sessions
-      cli:
-        command: "show configuration sessions"
-      register: eos_supports_sessions
-      ignore_errors: true
-
-    - name: fail host if config replace or require sessions
-      fail:
-        msg: "configure sessions is not supported on this version of eos"
-      when: eos_supports_sessions is failed and (eos_config_replace or eos_config_require_session)
-
-    - name: display configuration session name (if configured)
-      debug:
-        msg: "eos configure session name is {{ eos_config_session_name }}"
-      when: eos_supports_sessions is success
-
-    - name: invoke configure session
-      include_tasks: configure.yaml
-      vars:
-        eos_configuration_task: includes/config_session.yaml
-      when: eos_supports_sessions is success
-
-    - name: invoke configure terminal
-      include_vars: configure.yaml
-      vars:
-        eos_configuration_task: includes/config_terminal.yaml
-      when: eos_supports_sessions is failed
-  when: eos_config_text is defined
+- name: invoke configure
+  include_tasks: includes/configure.yaml

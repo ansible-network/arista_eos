@@ -1,0 +1,30 @@
+---
+# this block is responsible for loading the configuration without using a
+# configuration session.  this block is typically not the preferred path but is
+# maintained for older eos devices that do not support config sessions
+- name: load configuration using configure terminal
+  block:
+    - name: enter configuration mode
+      cli:
+        command: configure
+
+    - name: load configuration lines
+      cli:
+        command: "{{ line.strip() }}"
+      loop: "{{ eos_config_text | to_lines }}"
+      loop_control:
+        loop_var: line
+      when: line != 'end' and not ansible_check_mode
+      changed_when: true
+
+    - name: leave configuration mode
+      cli:
+        command: end
+  rescue:
+    - name: leave configuration mode
+      cli:
+        command: end
+
+    - name: mark the host as failed
+      fail:
+        msg: "error loading configuration onto target device"

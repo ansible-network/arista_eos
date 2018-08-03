@@ -1,0 +1,32 @@
+---
+argument_spec:
+
+  ansible_network_os:
+    description:
+      - Set the name of the Ansible network OS platform.  This value should be
+        set to `eos` for this provider.
+    required: true
+
+  eos_config_text:
+    description:
+      - Provide the network device configuration as a single string.  The
+        configuration text will be loaded onto the target network deivce.
+    type: str
+    aliases:
+      - config_text
+
+  eos_config_file:
+    description:
+      - Provide a relative or absolute path to the configuration file to be
+        loaded onto the target network device.
+    type: str
+    aliases:
+      - config_file
+
+  eos_config_replace:
+    type: bool
+    aliases:
+      - replace
+
+required_one_of:
+  - ['eos_config_text', 'eos_config_file']
