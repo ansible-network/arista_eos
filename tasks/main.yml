@@ -1,6 +1,14 @@
 ---
-# tasks file for eos
+# tasks file for arista_eos
 #
+- name: set the role version
+  set_fact:
+    ansible_network_eos_version: "devel"
+
+- name: display the role version to stdout
+  debug:
+    msg: "ansible_network.arista_eos version is {{ ansible_network_eos_version }}"
+
 - name: validate ansible_network_os == 'eos'
   fail:
     msg: "this role only works with arista eos devices"

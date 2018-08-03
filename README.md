@@ -1,4 +1,4 @@
-# eos
+# arista_eos
 
 This Ansible Network role provides a set of network functions that are designed
 to work with Arista EOS network devices.  The functions included in this role
@@ -8,7 +8,7 @@ tasks and handling various operational tasks on the device.
 ## Requirements
 
 * Ansible 2.5 or later
-* Ansible Network Engine Role 2.5.3 or later
+* Ansible Network Engine Role 2.6.2 or later
 
 ## Functions
 
