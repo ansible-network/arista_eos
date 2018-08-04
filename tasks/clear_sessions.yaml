@@ -1,8 +1,6 @@
 ---
-- name: verify connection is network_cli
-  fail:
-    msg: "clear_sessions requires connection type network_cli"
-  when: ansible_connection != 'network_cli'
+- name: initialize function
+  include_tasks: includes/init.yaml
 
 - name: get all configured sessions
   eos_command:

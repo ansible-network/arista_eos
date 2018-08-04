@@ -86,7 +86,7 @@ alternative one is not provided.  If you wish to provide a custom config
 session name, set this value.  Typically this value does not need to be
 changed.
 
-The default value is `ansible-{{ omit | to_uuid }}`
+The default value is `cfg-ansible`
 
 ### eos_config_checkpoint_filename
 
@@ -94,7 +94,7 @@ The name of the checkpoint file to be created on the local device is defined by
 this setting and does not typically need to be changed.   The checkpoint file
 is created on the default flash file system.
 
-The default value is `_tmp_ansible`
+The default value is `tmp_ansible`
 
 ### eos_rollback_enabled
 
@@ -105,28 +105,19 @@ feature is enabled by default but can be disabled by setting this value to
 
 The default value is `True`
 
-### eos_clear_config_session
-
-Once the `load_config` function has completed executing, and (assuming
-configuration sessions are being used) the configuration session is removed to
-save memory.  If you do not want the configuration session removed, set this
-value to `False`.
-
-The default value is `True`
-
 ## Hooks
 
 The values below provide the names of the hooks supported by this function. For
 more details about hooks and how they are using see [Hooks](https://github.com/ansible-network.arista_eos/blob/devel/docs/hooks.md)
 
-### eos_configuration_rollback_pre_hook
+### eos_restore_checkpoint_pre_hook
 
-This hook is executed once the rollback is triggered but before the rollback
-configuration is loaded into the device.
+This hook is executed once the checkpoint restore is triggered but before the 
+checkpoint configuration is loaded into the device.
 
-### eos_configuration_rollback_post_hook
+### eos_restore_checkpoint_post_hook
 
-This hook is executed once the rollback configuration has been successfully
+This hook is executed once the checkpoint configuration has been successfully
 loaded into the target device but before the function exits.
 
 ## Notes

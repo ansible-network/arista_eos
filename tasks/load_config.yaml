@@ -1,4 +1,7 @@
 ---
+- name: initialize function
+  include_tasks: includes/init.yaml
+
 - name: validate role spec
   validate_role_spec:
     spec: load_config_spec.yaml
@@ -8,5 +11,51 @@
     eos_config_text: "{{ lookup('config_template', eos_config_file) | join('\n') }}"
   when: eos_config_file != ''
 
-- name: invoke configure
-  include_tasks: includes/configure.yaml
+- name: display message
+  debug:
+    msg: "eos configuration rollback is {{ eos_rollback_enabled | ternary('enabled', 'disabled') }}"
+
+- name: create checkpoint configuration on target device
+  include_tasks: includes/checkpoint/create.yaml
+  when: eos_rollback_enabled
+
+# check if the current target device supports the configure sessions feature.
+# if config sessions is not suppported and config replace is enabled or
+# required sessions is enabled, then fail the host
+- name: check if device supports config sessions
+  cli:
+    command: "show configuration sessions"
+  register: eos_supports_sessions
+  ignore_errors: true
+
+- name: fail host without config session support
+  fail:
+    msg: "configure sessions is not supported on this version of eos"
+  when: eos_supports_sessions is failed and (eos_config_replace or eos_config_require_session)
+
+- name: configure target device
+  block:
+    - name: load configuration using configure session
+      include_tasks: includes/configure/session.yaml
+      when: eos_supports_sessions is success
+
+    - name: load configuration using configure terminal
+      include_tasks: includes/configure/terminal.yaml
+      when: not ansible_check_mode and eos_supports_sessions is failed
+  rescue:
+    - name: display message
+      debug:
+        msg: "error loading configuration, restoring checkpoint"
+      when: eos_rollback_enabled
+
+    - name: restore previous checkpoint configuration
+      include_tasks: includes/checkpoint/restore.yaml
+      when: eos_rollback_enabled
+
+    - name: fail host due to config load error
+      fail:
+        msg: "error loading configuration onto target device"
+
+- name: remove checkpoint configuration from target device
+  include_tasks: includes/checkpoint/remove.yaml
+  when: eos_rollback_enabled

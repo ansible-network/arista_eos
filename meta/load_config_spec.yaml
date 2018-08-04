@@ -23,10 +23,5 @@ argument_spec:
     aliases:
       - config_file
 
-  eos_config_replace:
-    type: bool
-    aliases:
-      - replace
-
 required_one_of:
   - ['eos_config_text', 'eos_config_file']

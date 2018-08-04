@@ -1,14 +1,12 @@
 ---
-- name: validate required connection is configured
-  fail:
-    msg: "expected connection value to be set to network_cli, got {{ ansible_connection }}"
-  when: ansible_connection != 'network_cli'
+- name: initialize function
+  include_tasks: includes/init.yaml
 
 - name: collect platform capabilities as facts
   eos_capabilities:
 
 - name: run command and parse output
-  include_tasks: run_cli.yaml
+  include_tasks: includes/run_cli.yaml
   vars:
     eos_command: "{{ item.command }}"
     eos_parser: "cli/{{ item.parser }}"

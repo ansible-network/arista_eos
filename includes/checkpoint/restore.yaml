@@ -1,0 +1,29 @@
+---
+- name: get current files on flash
+  cli:
+    command: dir
+  register: eos_dir_listing
+
+- name: verify checkpoint file exists
+  fail:
+    msg: missing checkpoint file, cannot rollback
+  when: eos_config_checkoint_filename not in eos_dir_listing.stdout
+
+- name: restore configuration pre hook
+  include_tasks: "{{ eos_restore_checkpoint_pre_hook }}"
+  when: eos_configuration_rollback_pre_hook is defined
+
+- name: restoring previous checkpoint configuration
+  cli:
+    command: "configure replace flash:{{ eos_config_checkpoint_filename }}"
+
+- name: restore configuration post hook
+  include_tasks: "{{ eos_restore_checkpoint_post_hook }}"
+  when: eos_configuration_rollback_post_hook is defined
+
+- name: display message
+  debug:
+    msg: "successfully restored checkpoint configuration"
+
+- name: invoke remove
+  include_tasks: "{{ role_path }}/includes/checkpoint/remove.yaml"

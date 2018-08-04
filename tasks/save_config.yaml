@@ -1,4 +1,7 @@
 ---
+- name: initialize function
+  include_tasks: includes/init.yaml
+
 - name: copy running-config to startup-config
   cli:
     command: "copy running-config startup-config"

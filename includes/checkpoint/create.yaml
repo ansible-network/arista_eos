@@ -1,0 +1,24 @@
+---
+# check if there is an old checkpoint file on the flash disk and remove it
+# before continuing
+- name: get current files on flash
+  cli:
+    command: dir
+  register: eos_dir_listing
+
+- name: delete checkpoint file
+  cli:
+    command: "delete flash:{{ eos_config_checkpoint_filename }}"
+  when: eos_config_checkpoint_filename in eos_dir_listing.stdout
+
+# only create the checkpoint configuration file if rollback is currently
+# enabled (default)
+- name: create configuration checkpoint
+  cli:
+    command: "copy running-config flash:{{ eos_config_checkpoint_filename }}"
+  register: eos_checkpoint_command
+
+- name: verify configuration checkpoint was successful
+  fail:
+    msg: "error attemping to create configuration checkpoint"
+  when: eos_checkpoint_command.stdout != 'Copy completed successfully.'
