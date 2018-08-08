@@ -7,7 +7,7 @@
 - name: verify checkpoint file exists
   fail:
     msg: missing checkpoint file, cannot rollback
-  when: eos_config_checkoint_filename not in eos_dir_listing.stdout
+  when: eos_config_checkpoint_filename not in eos_dir_listing.stdout
 
 - name: restore configuration pre hook
   include_tasks: "{{ eos_restore_checkpoint_pre_hook }}"
