@@ -19,4 +19,4 @@
         repeat_for: "{{ values }}"
   register: lldp
   export: yes
-  extend: arista_eos
+  extend: "{{ toplevel | default('arista_eos') }}"

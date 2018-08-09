@@ -2,7 +2,7 @@
 # tasks file for arista_eos
 #
 - name: initialize function
-  include_task: includes/init.yaml
+  include_tasks: includes/init.yaml
 
 - name: set role supported functions
   set_fact:
