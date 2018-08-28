@@ -1,0 +1,51 @@
+{% set cmd_list = [] %}
+
+{% for user in users %}
+
+{% set cmd = '' %}
+
+{% if user.state is defined and user.state == 'absent' %}
+{% set cmd = 'no username ' + user.name %}
+
+{% elif user.sshkey is defined %}
+{% set line = '' %}
+{% if user.password is not defined %}
+{% set line = 'username ' + user.name + ' nopassword' %}
+{% elif user.password %}
+{% set line = 'username ' + user.name + ' password ' + user.password %}
+{% endif %}
+
+{% if user.role is defined %}
+{% set line = line + ' role ' + user.role %}
+{% endif %}
+
+{% if user.privilege is defined %}
+{% set line = line + ' privilege ' + user.privilege|string %}
+{% endif %}
+
+{{ cmd_list.append(line) }}
+{% set cmd = 'username ' + user.name + ' sshkey ' + user.sshkey %}
+
+{% else %}
+
+{% if user.password is not defined %}
+{% set cmd = 'username ' + user.name + ' nopassword' %}
+{% elif user.password %}
+{% set cmd = 'username ' +  user.name + ' secret ' + user.password %}
+{% endif %}
+
+{% if user.role is defined %}
+{% set cmd = cmd + ' role ' + user.role %}
+{% endif %}
+
+{% if user.privilege is defined %}
+{% set cmd = cmd + ' privilege ' + user.privilege|string %}
+{% endif %}
+
+{% endif %}
+{{ cmd_list.append(cmd) }}
+
+{% endfor %}
+{{ cmd_list|join('\n') }}
+
+
