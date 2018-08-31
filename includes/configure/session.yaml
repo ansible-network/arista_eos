@@ -28,7 +28,7 @@
       loop: "{{ eos_config_text | to_lines }}"
       loop_control:
         loop_var: line
-      when: line != 'end'
+      when: line not in eos_config_ignore_keywords
 
     - name: get configuration diff
       cli:

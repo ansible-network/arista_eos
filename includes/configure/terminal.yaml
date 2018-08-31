@@ -14,7 +14,7 @@
       loop: "{{ eos_config_text | to_lines }}"
       loop_control:
         loop_var: line
-      when: line != 'end' and not ansible_check_mode
+      when: line not in eos_config_ignore_keywords and not ansible_check_mode
       changed_when: true
 
     - name: leave configuration mode
