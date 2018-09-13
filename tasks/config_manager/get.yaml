@@ -18,3 +18,4 @@
   command_parser:
     dir: "{{ role_path }}/parser_templates/config"
     content: "{{ configuration }}"
+  when: false

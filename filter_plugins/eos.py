@@ -31,7 +31,7 @@ class FilterModule(object):
     """Filters for working with output from network devices"""
 
     filter_map = {
-        'expand_interface_name': expand_interface_name
+        'expand_interface_name': expand_interface_name,
     }
 
     def filters(self):

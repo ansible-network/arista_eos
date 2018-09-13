@@ -1,0 +1,19 @@
+---
+argument_spec:
+  name:
+    description:
+      - Configure the name of the local user.
+    required: True
+
+  nopassword:
+    description:
+      - Enable the nopassword value
+    type: bool
+
+  password:
+    description:
+      - Set the password for the user identified in username
+
+mutually_exclusive:
+  - ['nopassword', 'password']
+
