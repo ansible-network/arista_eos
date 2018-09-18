@@ -8,9 +8,10 @@
   set_fact:
     eos_functions:
       - clear_sessions
-      - load_config
+      - config_manager/get
+      - config_manager/load
+      - config_manager/save
       - get_facts
-      - get_config
       - noop
 
 - name: validate the requested function is supported

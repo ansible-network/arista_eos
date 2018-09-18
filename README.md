@@ -21,9 +21,12 @@ the function in an Ansible playbook.
 
 * clear_sessions [[source]](https://github.com/ansible-network/arista_eos/blob/devel/tasks/clear_sessions.yaml) [[docs]](https://github.com/ansible-network/arista_eos/blob/devel/docs/clear_sessions.md)
 * get_facts [[source]](https://github.com/ansible-network/arista_eos/blob/devel/tasks/get_facts.yaml) [[docs]](https://github.com/ansible-network/arista_eos/blob/devel/docs/get_facts.md)
-* get_config [[source]](https://github.com/ansible-network/arista_eos/blob/devel/tasks/get_config.yaml) [[docs]](https://github.com/ansible-network/arista_eos/blob/devel/docs/get_config.md)
-* load_config [[source]](https://github.com/ansible-network/arista_eos/blob/devel/tasks/load_config.yaml) [[docs]](https://github.com/ansible-network/arista_eos/blob/devel/docs/load_config.md)
-* save_config [[source]](https://github.com/ansible-network/arista_eos/blob/devel/tasks/save_config.yaml) [[docs]](https://github.com/ansible-network/arista_eos/blob/devel/docs/save_config.md)
+
+### Config Manager
+
+* get [[source]](https://github.com/ansible-network/arista_eos/blob/devel/tasks/config_manager/get.yaml) [[docs]](https://github.com/ansible-network/arista_eos/blob/devel/docs/config_manager/get.md)
+* load [[source]](https://github.com/ansible-network/arista_eos/blob/devel/tasks/config_manager/load.yaml) [[docs]](https://github.com/ansible-network/arista_eos/blob/devel/docs/config_manager/load.md)
+* save [[source]](https://github.com/ansible-network/arista_eos/blob/devel/tasks/config_manager/save.yaml) [[docs]](https://github.com/ansible-network/arista_eos/blob/devel/docs/config_manager/save.md)
 
 ## License
 
