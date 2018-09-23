@@ -15,7 +15,7 @@ argument_spec:
     aliases:
       - config_text
 
-  eos_config_file:
+  config_manager_file:
     description:
       - Provide a relative or absolute path to the configuration file to be
         loaded onto the target network device.
@@ -24,4 +24,4 @@ argument_spec:
       - config_file
 
 required_one_of:
-  - ['eos_config_text', 'eos_config_file']
+  - ['eos_config_text', 'config_manager_file']

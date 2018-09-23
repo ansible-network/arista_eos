@@ -8,8 +8,8 @@
 
 - name: load config file contents
   set_fact:
-    eos_config_text: "{{ lookup('config_template', eos_config_file) | join('\n') }}"
-  when: eos_config_file != ''
+    eos_config_text: "{{ lookup('config_template', config_manager_file) | join('\n') }}"
+  when: config_manager_file is defined
 
 - name: display message
   debug:
