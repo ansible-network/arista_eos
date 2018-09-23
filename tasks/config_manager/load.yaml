@@ -8,8 +8,13 @@
 
 - name: load config file contents
   set_fact:
-    eos_config_text: "{{ lookup('config_template', config_manager_file) | join('\n') }}"
+    config_manager_text: "{{ lookup('config_template', config_manager_file) | join('\n') }}"
   when: config_manager_file is defined
+
+- name: validate config text is set
+  fail:
+    msg: "missing required arg: config_manager_text"
+  when: config_manager_text is undefined
 
 - name: display message
   debug:
@@ -38,10 +43,15 @@
     - name: load configuration using configure session
       include_tasks: includes/configure/session.yaml
       when: eos_supports_sessions is success
+      vars:
+        eos_config_text: "{{ config_manager_text }}"
 
     - name: load configuration using configure terminal
       include_tasks: includes/configure/terminal.yaml
       when: not ansible_check_mode and eos_supports_sessions is failed
+      vars:
+        eos_config_text: "{{ config_manager_text }}"
+
   rescue:
     - name: display message
       debug:

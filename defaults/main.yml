@@ -8,8 +8,6 @@ eos_config_source:
 eos_rollback_enabled: true
 eos_clear_config_session: true
 
-eos_config_file: "{{ config_file | default(None) }}"
-eos_config_text: "{{ config_text | default(None) }}"
 eos_config_replace: "{{ replace | default(False) }}"
 eos_config_session_name: "cfg_ansible"
 eos_config_checkpoint_filename: "chk_ansible"
