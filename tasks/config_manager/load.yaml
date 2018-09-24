@@ -45,12 +45,14 @@
       when: eos_supports_sessions is success
       vars:
         eos_config_text: "{{ config_manager_text }}"
+        eos_config_replace: "{{ config_manager_replace }}"
 
     - name: load configuration using configure terminal
       include_tasks: includes/configure/terminal.yaml
       when: not ansible_check_mode and eos_supports_sessions is failed
       vars:
         eos_config_text: "{{ config_manager_text }}"
+        eos_config_replace: "{{ config_manager_replace }}"
 
   rescue:
     - name: display message
