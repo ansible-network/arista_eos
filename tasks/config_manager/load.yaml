@@ -20,8 +20,14 @@
   debug:
     msg: "eos configuration rollback is {{ eos_rollback_enabled | ternary('enabled', 'disabled') }}"
 
-- name: create checkpoint configuration on target device
-  include_tasks: includes/checkpoint/create.yaml
+- name: enable configuration checkpoint on remote device
+  block:
+    - name: set the checkpoint filename
+      set_fact:
+        eos_config_checkpoint_filename: chk_ansible
+
+    - name: create checkpoint configuration on target device
+      include_tasks: includes/checkpoint/create.yaml
   when: eos_rollback_enabled
 
 # check if the current target device supports the configure sessions feature.
