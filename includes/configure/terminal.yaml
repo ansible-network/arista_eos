@@ -16,6 +16,13 @@
         loop_var: line
       when: line not in eos_config_ignore_keywords and not ansible_check_mode
       changed_when: true
+      register: eos_config_output
+
+    - name: fail any lines that generated an error
+      fail:
+        msg: "failed to apply configuration: {{ item.line }}"
+      when: item is not skipped and item.stdout | length > 0 and item.stdout[0] == '%'
+      loop: "{{ eos_config_output.results }}"
 
     - name: leave configuration mode
       cli:

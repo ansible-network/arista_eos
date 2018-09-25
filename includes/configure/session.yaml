@@ -29,6 +29,13 @@
       loop_control:
         loop_var: line
       when: line not in eos_config_ignore_keywords
+      register: eos_config_output
+
+    - name: fail any lines that generated an error
+      fail:
+        msg: "failed to apply configuration: {{ item.line }}"
+      when: item is not skipped and item.stdout | length > 0 and item.stdout[0] == '%'
+      loop: "{{ eos_config_output.results }}"
 
     - name: get configuration diff
       cli:

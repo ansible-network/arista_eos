@@ -11,7 +11,7 @@
     config_manager_text: "{{ lookup('config_template', config_manager_file) | join('\n') }}"
   when: config_manager_file is defined
 
-- name: validate config text is set
+- name: validate config_manager_text is defined
   fail:
     msg: "missing required arg: config_manager_text"
   when: config_manager_text is undefined
