@@ -10,7 +10,6 @@ eos_clear_config_session: true
 
 eos_config_replace: "{{ replace | default(False) }}"
 eos_config_session_name: "cfg_ansible"
-eos_config_checkpoint_filename: "chk_ansible"
 eos_config_require_session: "{{ require_session | default(False) }}"
 eos_config_use_terminal: False
 

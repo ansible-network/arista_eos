@@ -1,4 +1,9 @@
 ---
+- name: verify required setting
+  fail:
+    msg: "missing required fact: eos_config_checkpoint_filename"
+  when: eos_config_checkpoint_filename is undefined
+
 - name: get current files on flash
   cli:
     command: dir
