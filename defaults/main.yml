@@ -13,8 +13,8 @@ eos_config_session_name: "cfg_ansible"
 eos_config_require_session: "{{ require_session | default(False) }}"
 eos_config_use_terminal: False
 
-eos_config_ignore_keywords: ['end', 'commit', 'abort']
-
 eos_get_facts_command_map: "{{ role_path }}/vars/get_facts_command_map.yaml"
 eos_get_facts_subset: "{{ subset | default(['default']) }}"
+
+eos_config_load_order: "{{ role_path }}/vars/eos_config_load_order.yaml"
 
