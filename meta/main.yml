@@ -1,6 +1,6 @@
 galaxy_info:
   author: Ansible Network Community (ansible-network)
-  description: Ansible role for managing Cisco IOS devices
+  description: Ansible role for managing Arista EOS devices
   company: Ansible
 
   license: GPLv3
