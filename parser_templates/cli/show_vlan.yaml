@@ -1,20 +1,38 @@
 ---
-- name: show vlan
-  pattern_match:
-    regex: "(\\d+)\\s+(\\w+)\\s+(\\w+)\\s+([Et\\d+|,|\\s]*)$"
-    match_all: yes
-  register: matches
+- name: parser meta data
+  parser_metadata:
+    version: 1.0
+    command: show vlan brief
+    network_os: eos
 
-- name: template facts
+- name: match cli sections
+  pattern_match:
+    regex: "^\\d+"
+    match_all: yes
+    match_greedy: yes
+#    match_until: "^$"
+  register: cli_section
+
+- name: match cli values
+  pattern_group:
+    - name: match row
+      pattern_match:
+        regex: '^(?P<id>\d+)\s+(?P<name>\w+)\s+(?P<status>.*?)\s+(?P<ports>[Eth\d+\/\d+|,|\\s+]*)'
+        content: "{{ item }}"
+      register: fact
+  loop: "{{ cli_section }}"
+  register: cli_values
+
+- name: generate existing vlan json data structure
   json_template:
     template:
-      - key: vlan_id
-        value: "{{ item.matches.0 }}"
+      - key: id
+        value: "{{ item.fact.id }}"
       - key: name
-        value: "{{ item.matches.1 }}"
+        value: "{{ item.fact.name }}"
       - key: status
-        value: "{{ item.matches.2 }}"
-  loop: "{{ matches }}"
-  register: vlans
+        value: "{{ item.fact.status }}"
+  loop: "{{ cli_values }}"
   export: yes
-  extend: arista_eos
+  register: vlan_facts
+  #extend: arista_eos
