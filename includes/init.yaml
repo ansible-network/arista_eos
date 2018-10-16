@@ -2,7 +2,7 @@
 - name: set role basic facts
   set_fact:
     ansible_network_eos_path: "{{ role_path }}"
-    ansible_network_eos_version: "devel"
+    ansible_network_eos_version: "v2.6.2"
 
 - name: display the role version to stdout
   debug:
