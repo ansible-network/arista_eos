@@ -2,6 +2,15 @@
 arista_eos
 ===============================
 
+2.6.2
+=====
+
+Major Changes
+-------------
+
+- Added configure_vlan task
+- Replace eos_config_file to config_manager_file
+
 2.6.1
 =====
 
