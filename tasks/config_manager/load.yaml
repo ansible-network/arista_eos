@@ -1,74 +1,42 @@
 ---
 - name: initialize function
-  include_tasks: includes/init.yaml
-
-- name: validate role spec
-  validate_role_spec:
-    spec: load_config_spec.yaml
+  include_tasks: "{{ role_path }}/includes/init.yaml"
 
 - name: validate config_manager_text is defined
   fail:
-    msg: "missing required arg: config_manager_text"
+    msg: "missing required argument: config_manager_text"
   when: config_manager_text is undefined
+
+- name: initialize eos checkpoint file
+  block:
+    - name: set the checkpoint filename
+      set_fact:
+        eos_checkpoint_filename: "chk_ansible"
+
+    - name: create checkpoint file on remote device
+      include_tasks: "{{ role_path }}/includes/checkpoint/create.yaml"
+  when: eos_rollback_enabled
 
 - name: display message
   debug:
     msg: "eos configuration rollback is {{ eos_rollback_enabled | ternary('enabled', 'disabled') }}"
 
-- name: enable configuration checkpoint on remote device
+- name: edit the target device configuration
   block:
-    - name: set the checkpoint filename
-      set_fact:
-        eos_checkpoint_filename: chk_ansible
-
-    - name: create checkpoint configuration on target device
-      include_tasks: includes/checkpoint/create.yaml
-  when: eos_rollback_enabled
-
-# check if the current target device supports the configure sessions feature.
-# if config sessions is not suppported and config replace is enabled or
-# required sessions is enabled, then fail the host
-- name: check if device supports config sessions
-  cli:
-    command: "show configuration sessions"
-  register: eos_supports_sessions
-  ignore_errors: true
-
-- name: fail host without config session support
-  fail:
-    msg: "configure sessions is not supported on this version of eos"
-  when: eos_supports_sessions is failed and (eos_config_replace or eos_config_require_session)
-
-- name: configure target device
-  block:
-    - name: load configuration using configure session
-      include_tasks: includes/configure/session.yaml
-      when: eos_supports_sessions is success
-      vars:
-        eos_config_text: "{{ config_manager_text }}"
-        eos_config_replace: "{{ config_manager_replace | default(False)}}"
-
-    - name: load configuration using configure terminal
-      include_tasks: includes/configure/terminal.yaml
-      when: not ansible_check_mode and eos_supports_sessions is failed
-      vars:
-        eos_config_text: "{{ config_manager_text }}"
-        eos_config_replace: "{{ config_manager_replace | default(False) }}"
+    - name: load configuration using cli_config module
+      cli_config:
+        config: "{{ config_manager_text }}"
+        replace: "{{ config_manager_replace | default(False) }}"
 
   rescue:
-    - name: display message
-      debug:
-        msg: "error loading configuration, restoring checkpoint"
+    - name: restore checkpoint file
+      include_tasks: "{{ role_path }}/includes/checkpoint/restore.yaml"
       when: eos_rollback_enabled
 
-    - name: restore previous checkpoint configuration
-      include_tasks: includes/checkpoint/restore.yaml
-      when: eos_rollback_enabled
-
-    - name: fail host due to config load error
+    - name: fail host
       fail:
-        msg: "error loading configuration onto target device"
+        msg: error loading configuration onto target host
 
-- name: remove checkpoint configuration from target device
-  include_tasks: includes/checkpoint/remove.yaml
+- name: remove checkpoint file from remote device
+  include_tasks: "{{ role_path }}/includes/checkpoint/remove.yaml"
   when: eos_rollback_enabled
