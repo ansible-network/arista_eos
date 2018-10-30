@@ -2,6 +2,14 @@
 arista_eos
 ===============================
 
+2.6.3
+=====
+
+Minor Changes
+-------------
+
+- Update config_manager/load function to use cli_config module
+
 2.6.2
 =====
 
